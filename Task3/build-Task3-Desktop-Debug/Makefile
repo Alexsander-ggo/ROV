@@ -55,6 +55,8 @@ OBJECTS_DIR   = ./
 SOURCES       = ../Task3/Devices/Consol.cpp \
 		../Task3/Devices/FileManager.cpp \
 		../Task3/Devices/Planner.cpp \
+		../Task3/JSON/JSON.cpp \
+		../Task3/JSON/JSON_builder.cpp \
 		../Task3/Main/Application.cpp \
 		../Task3/Main/main.cpp \
 		../Task3/Missions/Dive.cpp \
@@ -70,6 +72,8 @@ SOURCES       = ../Task3/Devices/Consol.cpp \
 OBJECTS       = Consol.o \
 		FileManager.o \
 		Planner.o \
+		JSON.o \
+		JSON_builder.o \
 		Application.o \
 		main.o \
 		Dive.o \
@@ -177,6 +181,8 @@ DIST          = /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/spec_pre.prf \
 		../Task3/Task3.pro Devices/Consol.h \
 		Devices/FileManager.h \
 		Devices/Planner.h \
+		JSON/JSON.h \
+		JSON/JSON_builder.h \
 		Main/Application.h \
 		Missions/Dive.h \
 		Missions/Lift.h \
@@ -190,6 +196,8 @@ DIST          = /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/spec_pre.prf \
 		Utilities/Setting.h ../Task3/Devices/Consol.cpp \
 		../Task3/Devices/FileManager.cpp \
 		../Task3/Devices/Planner.cpp \
+		../Task3/JSON/JSON.cpp \
+		../Task3/JSON/JSON_builder.cpp \
 		../Task3/Main/Application.cpp \
 		../Task3/Main/main.cpp \
 		../Task3/Missions/Dive.cpp \
@@ -445,31 +453,104 @@ compiler_clean:
 
 Consol.o: ../Task3/Devices/Consol.cpp ../Task3/Devices/Consol.h \
 		../Task3/Devices/FileManager.h \
+		../Task3/Missions/Dive.h \
+		../Task3/Missions/Mission.h \
+		../Task3/JSON/JSON.h \
+		../Task3/Utilities/Command.h \
+		../Task3/Utilities/Parser.h \
+		../Task3/Utilities/Setting.h \
+		../Task3/Utilities/Parameter.h \
+		../Task3/Missions/Lift.h \
+		../Task3/Missions/Tack.h \
 		../Task3/Devices/Planner.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o Consol.o ../Task3/Devices/Consol.cpp
 
-FileManager.o: ../Task3/Devices/FileManager.cpp ../Task3/Devices/FileManager.h
+FileManager.o: ../Task3/Devices/FileManager.cpp ../Task3/Devices/FileManager.h \
+		../Task3/Missions/Dive.h \
+		../Task3/Missions/Mission.h \
+		../Task3/JSON/JSON.h \
+		../Task3/Utilities/Command.h \
+		../Task3/Utilities/Parser.h \
+		../Task3/Utilities/Setting.h \
+		../Task3/Utilities/Parameter.h \
+		../Task3/Missions/Lift.h \
+		../Task3/Missions/Tack.h \
+		../Task3/JSON/JSON_builder.h \
+		../Task3/Missions/Move.h \
+		../Task3/Missions/Return.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o FileManager.o ../Task3/Devices/FileManager.cpp
 
-Planner.o: ../Task3/Devices/Planner.cpp ../Task3/Devices/Planner.h
+Planner.o: ../Task3/Devices/Planner.cpp ../Task3/Devices/Planner.h \
+		../Task3/Missions/Mission.h \
+		../Task3/JSON/JSON.h \
+		../Task3/Utilities/Command.h \
+		../Task3/Utilities/Parser.h \
+		../Task3/Utilities/Setting.h \
+		../Task3/Utilities/Parameter.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o Planner.o ../Task3/Devices/Planner.cpp
 
-Application.o: ../Task3/Main/Application.cpp ../Task3/Main/Application.h
+JSON.o: ../Task3/JSON/JSON.cpp ../Task3/JSON/JSON.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o JSON.o ../Task3/JSON/JSON.cpp
+
+JSON_builder.o: ../Task3/JSON/JSON_builder.cpp ../Task3/JSON/JSON_builder.h \
+		../Task3/JSON/JSON.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o JSON_builder.o ../Task3/JSON/JSON_builder.cpp
+
+Application.o: ../Task3/Main/Application.cpp ../Task3/Main/Application.h \
+		../Task3/Devices/Consol.h \
+		../Task3/Devices/FileManager.h \
+		../Task3/Missions/Dive.h \
+		../Task3/Missions/Mission.h \
+		../Task3/JSON/JSON.h \
+		../Task3/Utilities/Command.h \
+		../Task3/Utilities/Parser.h \
+		../Task3/Utilities/Setting.h \
+		../Task3/Utilities/Parameter.h \
+		../Task3/Missions/Lift.h \
+		../Task3/Missions/Tack.h \
+		../Task3/Devices/Planner.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o Application.o ../Task3/Main/Application.cpp
 
-main.o: ../Task3/Main/main.cpp ../Task3/Main/Application.h
+main.o: ../Task3/Main/main.cpp ../Task3/Main/Application.h \
+		../Task3/Devices/Consol.h \
+		../Task3/Devices/FileManager.h \
+		../Task3/Missions/Dive.h \
+		../Task3/Missions/Mission.h \
+		../Task3/JSON/JSON.h \
+		../Task3/Utilities/Command.h \
+		../Task3/Utilities/Parser.h \
+		../Task3/Utilities/Setting.h \
+		../Task3/Utilities/Parameter.h \
+		../Task3/Missions/Lift.h \
+		../Task3/Missions/Tack.h \
+		../Task3/Devices/Planner.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o main.o ../Task3/Main/main.cpp
 
 Dive.o: ../Task3/Missions/Dive.cpp ../Task3/Missions/Dive.h \
-		../Task3/Missions/Mission.h
+		../Task3/Missions/Mission.h \
+		../Task3/JSON/JSON.h \
+		../Task3/Utilities/Command.h \
+		../Task3/Utilities/Parser.h \
+		../Task3/Utilities/Setting.h \
+		../Task3/Utilities/Parameter.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o Dive.o ../Task3/Missions/Dive.cpp
 
 Lift.o: ../Task3/Missions/Lift.cpp ../Task3/Missions/Lift.h \
 		../Task3/Missions/Dive.h \
-		../Task3/Missions/Mission.h
+		../Task3/Missions/Mission.h \
+		../Task3/JSON/JSON.h \
+		../Task3/Utilities/Command.h \
+		../Task3/Utilities/Parser.h \
+		../Task3/Utilities/Setting.h \
+		../Task3/Utilities/Parameter.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o Lift.o ../Task3/Missions/Lift.cpp
 
 Mission.o: ../Task3/Missions/Mission.cpp ../Task3/Missions/Mission.h \
+		../Task3/JSON/JSON.h \
+		../Task3/Utilities/Command.h \
+		../Task3/Utilities/Parser.h \
+		../Task3/Utilities/Setting.h \
+		../Task3/Utilities/Parameter.h \
 		../Task3/Missions/Dive.h \
 		../Task3/Missions/Lift.h \
 		../Task3/Missions/Move.h \
@@ -478,20 +559,36 @@ Mission.o: ../Task3/Missions/Mission.cpp ../Task3/Missions/Mission.h \
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o Mission.o ../Task3/Missions/Mission.cpp
 
 Move.o: ../Task3/Missions/Move.cpp ../Task3/Missions/Move.h \
-		../Task3/Missions/Mission.h
+		../Task3/Missions/Mission.h \
+		../Task3/JSON/JSON.h \
+		../Task3/Utilities/Command.h \
+		../Task3/Utilities/Parser.h \
+		../Task3/Utilities/Setting.h \
+		../Task3/Utilities/Parameter.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o Move.o ../Task3/Missions/Move.cpp
 
 Return.o: ../Task3/Missions/Return.cpp ../Task3/Missions/Return.h \
-		../Task3/Missions/Mission.h
+		../Task3/Missions/Mission.h \
+		../Task3/JSON/JSON.h \
+		../Task3/Utilities/Command.h \
+		../Task3/Utilities/Parser.h \
+		../Task3/Utilities/Setting.h \
+		../Task3/Utilities/Parameter.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o Return.o ../Task3/Missions/Return.cpp
 
 Tack.o: ../Task3/Missions/Tack.cpp ../Task3/Missions/Tack.h \
-		../Task3/Missions/Mission.h
+		../Task3/Missions/Mission.h \
+		../Task3/JSON/JSON.h \
+		../Task3/Utilities/Command.h \
+		../Task3/Utilities/Parser.h \
+		../Task3/Utilities/Setting.h \
+		../Task3/Utilities/Parameter.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o Tack.o ../Task3/Missions/Tack.cpp
 
 Command.o: ../Task3/Utilities/Command.cpp ../Task3/Utilities/Command.h \
 		../Task3/Utilities/Parser.h \
-		../Task3/Utilities/Setting.h
+		../Task3/Utilities/Setting.h \
+		../Task3/Utilities/Parameter.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o Command.o ../Task3/Utilities/Command.cpp
 
 Parameter.o: ../Task3/Utilities/Parameter.cpp ../Task3/Utilities/Parameter.h
@@ -500,7 +597,9 @@ Parameter.o: ../Task3/Utilities/Parameter.cpp ../Task3/Utilities/Parameter.h
 Parser.o: ../Task3/Utilities/Parser.cpp ../Task3/Utilities/Parser.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o Parser.o ../Task3/Utilities/Parser.cpp
 
-Setting.o: ../Task3/Utilities/Setting.cpp ../Task3/Utilities/Setting.h
+Setting.o: ../Task3/Utilities/Setting.cpp ../Task3/Utilities/Setting.h \
+		../Task3/Utilities/Parameter.h \
+		../Task3/Utilities/Parser.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o Setting.o ../Task3/Utilities/Setting.cpp
 
 ####### Install

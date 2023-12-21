@@ -28,7 +28,7 @@ public:
 private:
     bool saveData();
 
-    bool writeData();
+//    bool writeData();
 
     bool checkCorrectionMission();
 

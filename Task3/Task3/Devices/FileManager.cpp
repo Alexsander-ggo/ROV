@@ -1,5 +1,7 @@
 #include "Devices/FileManager.h"
 
+#include "JSON/JSON.h"
+#include "JSON/JSON_builder.h"
 #include "Missions/Move.h"
 #include "Missions/Return.h"
 
@@ -28,7 +30,7 @@ std::string FileManager::getSaveInfo() const
 
 bool FileManager::open(const std::string& filename)
 {
-    uint64_t pos = filename.find(".data");
+    uint64_t pos = filename.find(".json");
     if (pos == -1 || filename.size() != pos + 5) {
         return false;
     }
@@ -37,25 +39,13 @@ bool FileManager::open(const std::string& filename)
     file.open(mFileName, std::ifstream::in);
     if (file.is_open()) {
         mIsOpened = true;
-        while (!file.eof()) {
-            char begin = file.get();
-            if (begin == '@') {
-                uint8_t count = file.get();
-                std::vector<uint8_t> bytes;
-                for (uint8_t i = 0; i < count; ++i) {
-                    bytes.push_back(file.get());
-                }
-                char end = file.get();
-                if (end == '\n') {
-                    uint8_t crc = 0;
-                    for (uint8_t i = 0; i < bytes.size() - 1; ++i) {
-                        crc += bytes[i];
-                    }
-                    if (crc == bytes.back()) {
-                        mMissions.push_back(createMission((MissionType)bytes.front()));
-                        mMissions.back()->load({bytes.begin() + 1, bytes.end() - 1});
-                    }
-                }
+        mMissions.clear();
+        json::Document doc = json::Load(file);
+        json::Node node = doc.getRoot();
+        if (!node.isNull()) {
+            json::Array array = node.asArray();
+            for (const json::Node& unit : array) {
+                mMissions.push_back(createMission(unit));
             }
         }
         file.close();
@@ -74,7 +64,7 @@ bool FileManager::save()
 {
     bool flag = checkCorrectionMission();
     if (flag) {
-        flag = saveData() && writeData();
+        flag = saveData();
     }
     if (flag) {
         mSaveInfo = "Миссия сохранена в файл " + mFileName;
@@ -87,44 +77,16 @@ bool FileManager::save()
 bool FileManager::saveData()
 {
     std::fstream file;
-    uint8_t expansion = std::string(".data").size();
-    std::string filename = mFileName.substr(0, mFileName.size() - expansion) + ".txt";
-    file.open(filename, std::ofstream::out);
-    if (file.is_open()) {
-        for (uint64_t i = 0; i < mMissions.size(); ++i) {
-            Mission* mission = mMissions.at(i);
-            file << i + 1 << ") ";
-            mission->print(file, "; ");
-            file << '\n';
-        }
-        file.close();
-        return true;
-    }
-    return false;
-}
-
-bool FileManager::writeData()
-{
-    std::fstream file;
     file.open(mFileName, std::ofstream::out);
     if (file.is_open()) {
+        json::Builder builder;
+        builder.startArray();
         for (const Mission* mission : mMissions) {
-            std::vector<uint8_t> bytes = mission->upload();
-            uint8_t count = bytes.size() + 2;
-            uint8_t type = mission->getType();
-            uint8_t crc = type;
-            for (uint8_t byte : bytes) {
-                crc += byte;
-            }
-            file << '@';
-            file << count;
-            file << type;
-            for (uint8_t byte : bytes) {
-                file << byte;
-            }
-            file << crc;
-            file << '\n';
+            builder.value(mission->save().getValue());
         }
+        builder.endArray();
+        json::Document doc(builder.build());
+        json::Print(doc, file);
         file.close();
         return true;
     }

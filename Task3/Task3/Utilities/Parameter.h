@@ -6,6 +6,7 @@
 #include <string>
 
 using Table = std::map<uint64_t, std::string>;
+using InvTable = std::map<std::string, uint64_t>;
 
 class Parameter
 {
@@ -44,6 +45,8 @@ public:
               const Table& table = {}) const;
 
     double textToValue(const std::string& text) const;
+
+    bool hasText() const;
 
 private:
     double getPrecision() const;

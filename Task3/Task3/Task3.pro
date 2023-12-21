@@ -7,6 +7,8 @@ SOURCES += \
         Devices/Consol.cpp \
         Devices/FileManager.cpp \
         Devices/Planner.cpp \
+    JSON/JSON.cpp \
+    JSON/JSON_builder.cpp \
         Main/Application.cpp \
         Main/main.cpp \
         Missions/Dive.cpp \
@@ -24,6 +26,8 @@ HEADERS += \
     Devices/Consol.h \
     Devices/FileManager.h \
     Devices/Planner.h \
+    JSON/JSON.h \
+    JSON/JSON_builder.h \
     Main/Application.h \
     Missions/Dive.h \
     Missions/Lift.h \

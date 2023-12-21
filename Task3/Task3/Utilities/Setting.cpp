@@ -1,5 +1,7 @@
 #include "Utilities/Setting.h"
 
+#include "JSON/JSON_builder.h"
+
 Setting::Setting(const std::string& name,
                  const std::string& command,
                  const std::string& description,
@@ -18,6 +20,7 @@ void Setting::setText(uint64_t value,
                       const std::string& text)
 {
     mTable[value] = text;
+    mInvTable[text] = value;
 }
 
 bool Setting::setData(const Args& args)
@@ -92,4 +95,39 @@ void Setting::info(std::ostream& out) const
         out << i + 1 << ") Аргумент";
         mParameters.at(i).info(out, mTable);
     }
+}
+
+void Setting::load(const json::Node& node)
+{
+    json::Dict dict = node.asDict();
+    std::string key = dict.begin()->first;
+    if (key == mName) {
+        json::Array array = dict.begin()->second.asArray();
+        for (uint64_t i = 0; i < array.size(); ++i) {
+            Parameter& parameter = mParameters[i];
+            if (parameter.hasText()) {
+                parameter.setValue(mInvTable.at(array.at(i).asString()));
+            } else {
+                parameter.setValue(array.at(i).asDouble());
+            }
+        }
+    }
+}
+
+json::Node Setting::save() const
+{
+    json::Builder builder;
+    builder.startDict()
+           .key(mName)
+           .startArray();
+    for (const Parameter& parameter : mParameters) {
+        if (parameter.hasText()) {
+            builder.value(mTable.at(parameter.getValue()));
+        } else {
+            builder.value(parameter.getValue());
+        }
+    }
+    builder.endArray()
+           .endDict();
+    return builder.build();
 }

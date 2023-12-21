@@ -1,8 +1,9 @@
 #ifndef SETTING_H
 #define SETTING_H
 
-#include <Utilities/Parameter.h>
-#include <Utilities/Parser.h>
+#include "JSON/JSON.h"
+#include "Utilities/Parameter.h"
+#include "Utilities/Parser.h"
 
 #include <functional>
 #include <iostream>
@@ -39,6 +40,10 @@ public:
 
     void info(std::ostream& out = std::cout) const;
 
+    void load(const json::Node& node);
+
+    json::Node save() const;
+
 private:
     std::string mName;
     std::string mCommand;
@@ -46,6 +51,7 @@ private:
     Parameters mParameters;
     Action mAction;
     Table mTable;
+    InvTable mInvTable;
 };
 
 #endif // PARAMETER_H

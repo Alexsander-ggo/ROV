@@ -136,6 +136,11 @@ double Parameter::textToValue(const std::string& text) const
     return value;
 }
 
+bool Parameter::hasText() const
+{
+    return mHasText;
+}
+
 double Parameter::getPrecision() const
 {
     return std::pow(10, mPrecision);

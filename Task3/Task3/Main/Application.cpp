@@ -7,13 +7,13 @@ Application::Application(int argc, char* argv[],
 {
     mError = 0;
      if (argc != 2) {
-         mOut << "Выберете файл с расширением .data\n";
+         mOut << "Выберете файл с расширением .json\n";
          mError = 1;
      } else {
          mConsol = new Consol(125, 50, mIn, mOut);
          if (!mConsol->open(argv[1])) {
              mOut << "Файл с именем " << argv[1] << " не удалось открыть\n";
-             mOut << "Выберете файл с расширением .data\n";
+             mOut << "Выберете файл с расширением .json\n";
              mError = 2;
          }
      }

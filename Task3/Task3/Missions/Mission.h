@@ -1,13 +1,13 @@
 ﻿#ifndef MISSION_H
 #define MISSION_H
 
+#include "JSON/JSON.h"
 #include "Utilities/Command.h"
 
 #include <deque>
 #include <iostream>
 #include <map>
 #include <string>
-#include <vector>
 
 enum MissionType
 {
@@ -25,6 +25,8 @@ using Missions = std::deque<Mission*>;
 
 Mission* createMission(MissionType type);
 
+Mission* createMission(const json::Node& node);
+
 class Mission : public Command
 {
 public:
@@ -32,14 +34,14 @@ public:
     Mission(MissionType type = EMPTY,
             const std::string& name = "");
 
-    std::vector<uint8_t> upload() const;
-
-    void load(const std::vector<uint8_t>& bytes);
-
     MissionType getType() const;
 
     void print(std::ostream& out,
                const std::string& separator = "\n") const;
+
+    void load(const json::Node& node);
+
+    json::Node save() const;
 
 protected:
     MissionType mType;
