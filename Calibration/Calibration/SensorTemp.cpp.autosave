@@ -1,0 +1,125 @@
+#include "SensorTemp.h"
+
+#include <cmath>
+#include <fstream>
+
+namespace clb {
+
+    clb::SensorTemp::SensorTemp(uint8_t bitness)
+    {
+        mMaxValue = (1 << bitness);
+    }
+
+    void SensorTemp::loadData(const std::string& fileName)
+    {
+        std::fstream file;
+        file.open(fileName, std::ios::in);
+        if (file.is_open()) {
+            while (!file.eof()) {
+                float rawValue, temp;
+                file >> rawValue >> temp;
+                mData.push_back(Data{rawValue, std::log10(rawValue / mMaxValue), temp});
+            }
+        }
+        file.close();
+        mData.pop_back();
+
+        int n = mData.size();
+        mSystem.resize(n, 2);
+        mRight.resize(n, 1);
+        mResidual.resize(n, 1);
+        mWeight.resize(n, n);
+
+        for (int i = 0; i < n; ++i) {
+            mSystem(i, 0) = mData.at(i).value;
+            mSystem(i, 1) = 1;
+            mRight(i, 0) = mData.at(i).temp;
+        }
+
+    }
+
+    void SensorTemp::calibrateEstimator(float deltaMax)
+    {
+        static const float ErrorMax = 0.0001;
+        static const int MaxIter = 100;
+        int i = 0;
+        int n = mData.size();
+        Eigen::MatrixXf X(2, 1);
+        for (int i = 0; i < n; ++i) {
+            mWeight(i, i) = 1;
+        }
+        while (i < MaxIter) {
+            X = (mSystem.transpose() * mWeight * mSystem).lu().solve(mSystem.transpose() * mWeight * mRight);
+            mResidual = mRight - mSystem * X;
+            bool flag = true;
+            for (int j = 0; j < n; ++j) {
+                float weight = 1 / std::max(deltaMax, std::abs(mResidual(j, 0)));
+                if (std::abs(weight - mWeight(j, j)) > ErrorMax) {
+                    mWeight(j, j) = weight;
+                    flag = false;
+                }
+            }
+            if (flag) {
+                break;
+            }
+            ++i;
+        }
+        mGain = X(0, 0);
+        mOffset = X(1, 0);
+    }
+
+    void SensorTemp::calibrateRANSAC(float deltaMax)
+    {
+        Eigen::MatrixXf tempSystem(2, 2);
+        tempSystem(0, 1) = 1;
+        tempSystem(1, 1) = 1;
+        Eigen::MatrixXf tempRight(2, 1);
+        Eigen::MatrixXf H(2, 1);
+        Eigen::MatrixXf X(2, 1);
+        float deltaMin = -1;
+        float norm = mRight.norm();
+        int n = mData.size();
+        for (int i = 0; i < n; ++i) {
+            tempSystem(0, 0) = mData.at(i).value;
+            tempRight(0, 0) = mData.at(i).temp;
+            for (int j = i + 1; j < n; ++j) {
+                tempSystem(1, 0) = mData.at(j).value;
+                tempRight(1, 0) = mData.at(j).temp;
+                H = tempSystem.lu().solve(tempRight);
+                mResidual = mRight - mSystem * H;
+                float delta = mResidual.norm() / norm;
+                if (delta < deltaMin || deltaMin < 0) {
+                    deltaMin = delta;
+                    X = H;
+                }
+            }
+        }
+        int size = 0;
+        mResidual = mRight - mSystem * X;
+        for (int i = 0; i < n; ++i) {
+            size += (std::abs(mResidual(i, 0)) < deltaMax * norm);
+        }
+        mSystem.resize(size, 2);
+        mRight.resize(size, 1);
+        std::vector<Data> filterData;
+        int index = 0;
+        for (int i = 0; i < n; ++i) {
+            if (std::abs(mResidual(i, 0)) < deltaMax * norm) {
+                mSystem(index, 0) = mData.at(i).value;
+                mSystem(index, 1) = 1;
+                mRight(index, 0) = mData.at(i).temp;
+                filterData.push_back(mData.at(i));
+                ++index;
+            }
+        }
+        X = (mSystem.transpose() * mSystem).lu().solve(mSystem.transpose() * mRight);
+        mGain = X(0, 0);
+        mOffset = X(1, 0);
+    }
+
+    float SensorTemp::getTemp(float value)
+    {
+        return mGain * std::log10(value / mMaxValue) + mOffset;
+    }
+
+}
